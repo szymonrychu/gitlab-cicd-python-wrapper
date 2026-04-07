@@ -1,0 +1,10 @@
+spec:
+  inputs:
+    stage:
+      default: test
+      type: string
+---
+component-job:
+  stage: $[[ inputs.stage ]]
+  script:
+    - echo "Running component"

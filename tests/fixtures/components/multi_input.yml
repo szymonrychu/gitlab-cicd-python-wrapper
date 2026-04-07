@@ -1,0 +1,25 @@
+spec:
+  description: "Multi-input component"
+  inputs:
+    stage:
+      default: build
+      type: string
+    image:
+      type: string
+    timeout:
+      type: number
+      default: 3600
+    verbose:
+      type: boolean
+      default: false
+    tags:
+      type: array
+      default:
+        - docker
+---
+build-job:
+  stage: $[[ inputs.stage ]]
+  image: $[[ inputs.image ]]
+  script:
+    - echo "Building..."
+  tags: $[[ inputs.tags ]]

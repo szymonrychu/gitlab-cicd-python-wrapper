@@ -1,0 +1,45 @@
+repos:
+  - repo: https://github.com/compilerla/conventional-pre-commit
+    rev: v3.0.0
+    hooks:
+    - id: conventional-pre-commit
+      stages: [commit-msg]
+      args: []
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v3.2.0
+    hooks:
+    - id: trailing-whitespace
+    - id: end-of-file-fixer
+    - id: check-yaml
+      args:
+        - --allow-multiple-documents
+    - id: check-added-large-files
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.4.4
+    hooks:
+    - id: ruff
+      args: [ --fix ]
+    - id: ruff-format
+
+  - repo: https://github.com/pycqa/autoflake
+    rev: v2.3.1
+    hooks:
+      - id: autoflake
+
+  - repo: https://github.com/pycqa/isort
+    rev: 5.13.2
+    hooks:
+      - id: isort
+        args: ["--profile", "black"]
+
+  - repo: https://github.com/jendrikseipp/vulture
+    rev: 'v2.11'
+    hooks:
+      - id: vulture
+
+  - repo: https://github.com/igorshubovych/markdownlint-cli
+    rev: v0.40.0
+    hooks:
+    - id: markdownlint-fix

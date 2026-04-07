@@ -1,0 +1,59 @@
+stages:
+  - build
+  - test
+  - deploy
+
+default:
+  image: python:3.11
+  before_script:
+    - pip install -r requirements.txt
+  tags:
+    - docker
+
+variables:
+  DEPLOY_ENV: "staging"
+
+workflow:
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+      when: always
+    - if: $CI_MERGE_REQUEST_IID
+      when: always
+    - when: never
+
+include:
+  - local: /templates/base.yml
+  - template: Auto-DevOps.gitlab-ci.yml
+
+build:
+  stage: build
+  script:
+    - python setup.py build
+  artifacts:
+    paths:
+      - dist/
+    expire_in: 1 week
+
+test:
+  stage: test
+  script:
+    - pytest --cov
+  needs:
+    - build
+  coverage: '/TOTAL.*\s+(\d+%)/'
+  cache:
+    key: pip-cache
+    paths:
+      - .cache/pip
+
+deploy:
+  stage: deploy
+  script:
+    - deploy.sh
+  environment:
+    name: staging
+    url: https://staging.example.com
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+      when: manual
+  allow_failure: false

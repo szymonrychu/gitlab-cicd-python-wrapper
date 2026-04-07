@@ -1,0 +1,17 @@
+# Pipeline configuration
+stages:
+  - build
+  - test
+  - deploy  # Production deploy stage
+
+# Variables for the pipeline
+variables:
+  APP_NAME: "my-app"  # Application name
+
+build-job:
+  stage: build
+  script:
+    - echo "Building ${APP_NAME}..."  # Build step
+  artifacts:
+    paths:
+      - dist/

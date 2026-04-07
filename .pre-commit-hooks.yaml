@@ -1,0 +1,13 @@
+- id: gitlab-cicd-validate
+  name: Validate GitLab CI/CD YAML
+  entry: gitlab-cicd-validate
+  language: python
+  files: '(\.gitlab-ci\.yml|\.gitlab/ci/.*\.yml)$'
+  types: [yaml]
+
+- id: gitlab-cicd-validate-components
+  name: Validate GitLab CI/CD Components
+  entry: gitlab-cicd-validate --component
+  language: python
+  files: '^templates/.*\.yml$'
+  types: [yaml]

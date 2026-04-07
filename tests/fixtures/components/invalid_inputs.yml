@@ -1,0 +1,13 @@
+spec:
+  inputs:
+    env:
+      type: string
+      options:
+        - dev
+        - staging
+        - prod
+---
+deploy-job:
+  stage: deploy
+  script:
+    - deploy.sh $[[ inputs.env ]]

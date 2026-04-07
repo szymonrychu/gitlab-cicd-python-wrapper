@@ -1,0 +1,71 @@
+[tool.poetry]
+name = "gitlab-cicd-python-wrapper"
+version = "0.1.0"
+description = "Pydantic models wrapping GitLab CI/CD YAML with 1:1 mapping"
+authors = ["Szymon Richert <szymon.rychu@gmail.com>"]
+readme = "README.md"
+license = "MIT"
+packages = [
+    {include = "gitlab_cicd_python_wrapper"}
+]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+pydantic = "^2.0"
+"ruamel.yaml" = "^0.18"
+aiofiles = "^24.0"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.2"
+pytest-cov = "^6.0"
+pytest-asyncio = "^0.25"
+ruff = "^0.4"
+isort = "^8.0"
+vulture = "^2.11"
+pre-commit = "^4.0"
+poethepoet = "^0.43"
+coverage-badge = "^1.1"
+autoflake = "^2.3"
+
+[tool.poetry.scripts]
+gitlab-cicd-validate = "gitlab_cicd_python_wrapper.cli:main"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poe.tasks]
+test = "poetry run coverage run -m pytest"
+lint = "pre-commit run --all-files"
+validate = "poetry run gitlab-cicd-validate"
+
+[tool.pytest.ini_options]
+addopts = "-v -rxXs"
+testpaths = ["tests"]
+log_cli = true
+log_cli_level = "INFO"
+asyncio_mode = "auto"
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+fix = true
+
+[tool.isort]
+profile = "black"
+
+[tool.autoflake]
+remove-all-unused-imports = true
+in-place = true
+expand-star-imports = true
+remove-unused-variables = true
+
+[tool.vulture]
+paths = ["gitlab_cicd_python_wrapper"]
+min_confidence = 80
+
+[tool.coverage.run]
+branch = true
+
+[tool.coverage.report]
+skip_empty = true
