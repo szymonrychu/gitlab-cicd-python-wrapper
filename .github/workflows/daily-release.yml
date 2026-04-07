@@ -1,0 +1,83 @@
+name: daily-release
+
+on:
+  schedule:
+    - cron: "0 2 * * *"
+  workflow_dispatch:
+
+env:
+  GIT_SHA: ${{ github.sha }}
+  BOT_USER_NAME: szymonrichert.pl bot
+  BOT_USER_EMAIL: bot@szymonrichert.pl
+
+jobs:
+  release-if-changed:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GH_TOKEN }}
+
+      - name: Configure git for tagging
+        run: |
+          git config user.name "${BOT_USER_NAME}"
+          git config user.email "${BOT_USER_EMAIL}"
+
+      - name: Check for changes
+        id: changes
+        run: |
+          export LATEST_REPO_TAG="$(git tag -l --sort=-v:refname "[0-9]*" | head -n1)"
+
+          if [ -z "$LATEST_REPO_TAG" ]; then
+            echo "No tag found, considering changed"
+            echo "changes=true" >> $GITHUB_OUTPUT
+          else
+            if git diff --quiet "${LATEST_REPO_TAG}" HEAD; then
+              echo "No changes since tag ${LATEST_REPO_TAG}"
+              echo "changes=false" >> $GITHUB_OUTPUT
+            else
+              echo "Changes detected since ${LATEST_REPO_TAG}"
+              echo "changes=true" >> $GITHUB_OUTPUT
+            fi
+          fi
+
+      - name: Compute new version
+        id: version
+        if: steps.changes.outputs.changes == 'true'
+        run: |
+          export LATEST_REPO_TAG="$(git tag -l --sort=-v:refname "[0-9]*" | head -n1)"
+
+          if [ -z "$LATEST_REPO_TAG" ]; then
+            export NEW_VERSION="0.0.1"
+          else
+            export MAJOR="$(echo "${LATEST_REPO_TAG}" | cut -d. -f1)"
+            export MINOR="$(echo "${LATEST_REPO_TAG}" | cut -d. -f2)"
+            export PATCH="$(echo "${LATEST_REPO_TAG}" | cut -d. -f3)"
+            export NEW_PATCH="$(expr "${PATCH}" + 1)"
+            export NEW_VERSION="${MAJOR}.${MINOR}.${NEW_PATCH}"
+          fi
+
+          echo "new_version=${NEW_VERSION}" >> $GITHUB_OUTPUT
+
+      - name: Update pyproject.toml version
+        if: steps.changes.outputs.changes == 'true'
+        run: |
+          sed -i "s/^version = .*/version = \"${{ steps.version.outputs.new_version }}\"/" pyproject.toml
+          git add pyproject.toml
+          git commit -m "chore: bump version to ${{ steps.version.outputs.new_version }}"
+          git push
+
+      - name: Create tag
+        if: steps.changes.outputs.changes == 'true'
+        run: |
+          git tag "${{ steps.version.outputs.new_version }}"
+          git push origin "${{ steps.version.outputs.new_version }}"
+
+      - name: Create release
+        if: steps.changes.outputs.changes == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: gh release create "${{ steps.version.outputs.new_version }}" --generate-notes

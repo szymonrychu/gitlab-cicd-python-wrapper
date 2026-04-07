@@ -1,0 +1,17 @@
+module.exports = {
+  "automerge": true,
+  "commitMessageExtra": "to {{newVersion}}",
+  "commitMessageSuffix": "",
+  "commitMessageTopic": "{{depName}}",
+  "dependencyDashboard": false,
+  "extends": ["config:recommended", ":rebaseStalePrs"],
+  "gitAuthor": "szymonrichert.pl bot <bot@szymonrichert.pl>",
+  "pinDigests": true,
+  "platform": "github",
+  "prConcurrentLimit": 100,
+  "rebaseWhen": "behind-base-branch",
+  "repositories": ["szymonrychu/gitlab-cicd-python-wrapper"],
+  "semanticCommits": "enabled",
+  "suppressNotifications": ["prIgnoreNotification"],
+  "username": "szymonrichert.pl bot",
+};

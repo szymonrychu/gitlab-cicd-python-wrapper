@@ -1,0 +1,33 @@
+{
+  "extends": ["config:recommended", ":rebaseStalePrs"],
+  "dependencyDashboard": false,
+  "rebaseWhen": "conflicted",
+  "suppressNotifications": ["prIgnoreNotification"],
+  "gitAuthor": "szymonrichert.pl bot <bot@szymonrichert.pl>",
+  "platform": "github",
+  "packageRules": [
+    {
+      "matchManagers": ["poetry"],
+      "groupName": "python dependencies"
+    },
+    {
+      "matchManagers": ["github-actions"],
+      "groupName": "github actions"
+    },
+    {
+      "matchManagers": [".*"],
+      "matchPackagePatterns": [".*"],
+      "matchUpdateTypes": ["major"],
+      "automerge": false,
+      "labels": ["major"]
+    },
+    {
+      "matchManagers": [".*"],
+      "matchPackagePatterns": [".*"],
+      "matchUpdateTypes": ["minor", "patch", "pin", "digest", "revision"],
+      "suppressNotifications": ["prIgnoreNotification", "prEditedNotification"],
+      "automerge": true,
+      "labels": ["automerge", "minor"]
+    }
+  ]
+}
