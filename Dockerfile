@@ -5,9 +5,10 @@ RUN pip install --no-cache-dir poetry && \
 
 WORKDIR /app
 
-COPY pyproject.toml poetry.lock ./
-RUN poetry install --only=main --no-interaction --no-ansi
+COPY pyproject.toml poetry.lock README.md ./
+RUN poetry install --only=main --no-interaction --no-ansi --no-root
 
 COPY gitlab_cicd_python_wrapper/ gitlab_cicd_python_wrapper/
+RUN poetry install --only=main --no-interaction --no-ansi
 
 ENTRYPOINT ["gitlab-cicd-validate"]
