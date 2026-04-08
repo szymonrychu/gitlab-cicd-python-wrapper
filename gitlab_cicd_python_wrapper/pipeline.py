@@ -70,16 +70,17 @@ class Pipeline(BaseModel):
             raw["stages"] = self.stages
         if self.variables:
             raw["variables"] = {
-                k: v if isinstance(v, str) else v.model_dump(exclude_none=True) for k, v in self.variables.items()
+                k: v if isinstance(v, str) else v.model_dump(mode="json", exclude_none=True)
+                for k, v in self.variables.items()
             }
         if self.default:
-            raw["default"] = self.default.model_dump(exclude_none=True, by_alias=True)
+            raw["default"] = self.default.model_dump(mode="json", exclude_none=True, by_alias=True)
         if self.workflow:
-            raw["workflow"] = self.workflow.model_dump(exclude_none=True, by_alias=True)
+            raw["workflow"] = self.workflow.model_dump(mode="json", exclude_none=True, by_alias=True)
         if self.include:
             raw["include"] = self.include
         for name, job in self.jobs.items():
-            raw[name] = job.model_dump(exclude_none=True, by_alias=True)
+            raw[name] = job.model_dump(mode="json", exclude_none=True, by_alias=True)
         result = dump_yaml(raw)
         if target is not None:
             Path(target).write_text(result)
