@@ -1,4 +1,4 @@
-FROM python:3.11-slim@sha256:b1b81d67b8df73bf6067191790c233ef9e598b863fc1ccf447956138ca466d99
+FROM python:3.14-slim@sha256:71b358f8bff55413f4a6b95af80acb07ab97b5636cd3b869f35c3680d31d1650
 
 RUN pip install --no-cache-dir poetry && \
     poetry config virtualenvs.create false
