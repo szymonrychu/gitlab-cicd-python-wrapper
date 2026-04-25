@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "gitlab-cicd-python-wrapper"
-version = "0.0.12"
+version = "0.0.13"
 description = "Pydantic models wrapping GitLab CI/CD YAML with 1:1 mapping"
 authors = ["Szymon Richert <szymon.rychu@gmail.com>"]
 readme = "README.md"
