@@ -13,12 +13,12 @@ packages = [
 python = "^3.11"
 pydantic = "^2.0"
 "ruamel.yaml" = ">=0.18,<0.20"
-aiofiles = "^24.0"
+aiofiles = "^25.0.0"
 
 [tool.poetry.group.dev.dependencies]
-pytest = "^8.2"
-pytest-cov = "^6.0"
-pytest-asyncio = "^0.26.0"
+pytest = "^9.0.0"
+pytest-cov = "^7.0.0"
+pytest-asyncio = "^1.0.0"
 ruff = "^0.15.0"
 isort = "^8.0"
 vulture = "^2.11"
