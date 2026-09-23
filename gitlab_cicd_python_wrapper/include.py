@@ -4,6 +4,8 @@ from typing import Any, Union
 
 from pydantic import BaseModel, ConfigDict
 
+from gitlab_cicd_python_wrapper.rules import IncludeRule
+
 
 class ComponentReference(BaseModel):
     model_config = ConfigDict(populate_by_name=True, extra="forbid")
@@ -30,15 +32,15 @@ class IncludeLocal(BaseModel):
 
     local: str
     inputs: dict[str, Any] | None = None
-    rules: list[dict[str, Any]] | None = None
+    rules: list[IncludeRule] | None = None
 
 
 class IncludeRemote(BaseModel):
     model_config = ConfigDict(populate_by_name=True, extra="forbid")
 
     remote: str
-    inputs: dict | None = None
-    rules: list[dict] | None = None
+    inputs: dict[str, Any] | None = None
+    rules: list[IncludeRule] | None = None
     integrity: str | None = None
     cache: bool | str | None = None
 
@@ -47,7 +49,8 @@ class IncludeTemplate(BaseModel):
     model_config = ConfigDict(populate_by_name=True, extra="forbid")
 
     template: str
-    inputs: dict | None = None
+    inputs: dict[str, Any] | None = None
+    rules: list[IncludeRule] | None = None
 
 
 class IncludeProject(BaseModel):
@@ -56,16 +59,16 @@ class IncludeProject(BaseModel):
     project: str
     file: str | list[str] | None = None
     ref: str | None = None
-    inputs: dict | None = None
-    rules: list[dict] | None = None
+    inputs: dict[str, Any] | None = None
+    rules: list[IncludeRule] | None = None
 
 
 class IncludeComponent(BaseModel):
     model_config = ConfigDict(populate_by_name=True, extra="forbid")
 
     component: str
-    inputs: dict | None = None
-    rules: list[dict] | None = None
+    inputs: dict[str, Any] | None = None
+    rules: list[IncludeRule] | None = None
 
     @property
     def parsed_ref(self) -> ComponentReference:

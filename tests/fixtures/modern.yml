@@ -1,0 +1,188 @@
+# Exercises keywords added to the GitLab CI/CD YAML reference up to GitLab 19.x.
+include: templates/common.yml
+
+image: ruby:3.3
+cache:
+  paths: [vendor/]
+
+variables:
+  RETRIES: 3
+  DEBUG: false
+  DEPLOY_ENV:
+    value: staging
+    options: [staging, production]
+    description: Target environment
+
+default:
+  identity: google_cloud
+  timeout: 30m
+  hooks:
+    pre_get_sources_script: echo "fetching sources"
+  id_tokens:
+    VAULT_ID_TOKEN:
+      aud: [https://vault.example.com, https://other.example.com]
+  retry:
+    max: 2
+    when: runner_interrupted
+    exit_codes: [137, 143]
+
+workflow:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      auto_cancel:
+        on_new_commit: interruptible
+    - changes:
+        paths: [src/**/*]
+        compare_to: refs/heads/main
+      when: always
+    - when: never
+
+build:
+  stage: build
+  image:
+    name: super/sql:experimental
+    pull_policy: [always, if-not-present]
+    docker:
+      platform: arm64/v8
+      user: dave
+    kubernetes:
+      user: 1001
+  services:
+    - name: postgres:16
+      variables:
+        POSTGRES_DB: test
+        POSTGRES_PORT: 5432
+      docker:
+        platform: linux/amd64
+  script: make build
+  parallel:
+    matrix:
+      - PROVIDER: aws
+        STACK: [monitoring, app1]
+      - PROVIDER: gcp
+        VERSION: 2
+  artifacts:
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: coverage.xml
+      sarif: gl-sarif.json
+      annotations: annotations.json
+
+test:
+  stage: test
+  inputs:
+    suite:
+      default: unit
+      options: [unit, integration]
+      description: Which suite to run
+    workers:
+      type: number
+      default: 4
+  script:
+    - ./run --suite ${{ job.inputs.suite }}
+  needs:
+    - job: build
+      parallel:
+        matrix:
+          - PROVIDER: aws
+            STACK: monitoring
+    - project: group/other
+      job: package
+      ref: main
+      artifacts: true
+  rules:
+    - exists:
+        project: group/configs
+        ref: main
+        paths: [config.yml]
+      needs: [build]
+      interruptible: true
+      variables:
+        LEVEL: 2
+    - changes:
+        regexp: '\.py$'
+  retry:
+    max: 1
+    exit_codes: 137
+
+deploy:
+  stage: deploy
+  script: ./deploy
+  secrets:
+    DB_PASSWORD:
+      gitlab_secrets_manager:
+        name: db_password
+        source: group/platform
+      file: false
+    GCP_KEY:
+      gcp_secret_manager:
+        name: key
+        version: 2
+      token: $GCP_ID_TOKEN
+    AWS_KEY:
+      aws_secrets_manager:
+        secret_id: prod/key
+        region: eu-west-1
+  environment:
+    name: production
+    on_stop: stop-production
+    action: verify
+    kubernetes:
+      agent: path/to/agent/project:agent-name
+      managed_resources:
+        enabled: false
+      dashboard:
+        namespace: my-namespace
+  release:
+    tag_name: $CI_COMMIT_TAG
+    tag_message: Release $CI_COMMIT_TAG
+    description: Release notes
+    assets:
+      links:
+        - name: binary
+          url: https://example.com/bin
+          link_type: package
+
+stop-production:
+  stage: deploy
+  script: ./teardown
+  when: manual
+  environment:
+    name: production
+    action: stop
+
+downstream:
+  stage: deploy
+  trigger:
+    project: group/downstream
+    strategy: mirror
+    inputs:
+      environment: production
+    forward:
+      pipeline_variables: true
+
+pages:
+  stage: deploy
+  script: ./build-site
+  pages:
+    path_prefix: $CI_COMMIT_BRANCH
+    expire_in: 1 week
+
+legacy:
+  script: echo legacy
+  only:
+    refs: [main]
+    variables: [$RELEASE]
+  except: [tags]
+
+steps-job:
+  run:
+    - name: hello
+      script: echo hello
+    - name: bye
+      step: gitlab.com/gitlab-org/ci-cd/runner-tools/echo-step@main
+      inputs:
+        echo: bye
+      env:
+        VAR1: value 1

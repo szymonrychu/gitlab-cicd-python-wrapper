@@ -28,6 +28,8 @@ poetry add gitlab-cicd-python-wrapper
 
 | GitLab Version | Pipeline Coverage | Component Coverage | Notes |
 |----------------|-------------------|-------------------|-------|
+| 19.x           | Full              | Full              | All keywords as of 19.4 (job `inputs`, `rules:changes:regexp`, `rules:exists:regexp`, GitLab/AWS secrets managers, new `retry:when` reasons) |
+| 18.x           | Full              | Full              | `image:kubernetes`, `environment:kubernetes:dashboard`, `spec:inputs:rules`, `spec:include` |
 | 17.x           | Full              | Full              | All keywords as of 17.9 |
 | 16.x           | Full              | Partial           | Components GA in 17.0 |
 | 15.x           | Partial           | N/A               | Deprecated keywords still accepted |

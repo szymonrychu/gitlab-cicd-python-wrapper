@@ -5,11 +5,14 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, model_validator
 
+from gitlab_cicd_python_wrapper.cache import Cache
 from gitlab_cicd_python_wrapper.globals import Default, Workflow
+from gitlab_cicd_python_wrapper.image import Image, Service
 from gitlab_cicd_python_wrapper.job import Job
+from gitlab_cicd_python_wrapper.script import Script
 from gitlab_cicd_python_wrapper.serialization import dump_yaml, load_yaml
 from gitlab_cicd_python_wrapper.spec import ComponentSpec
-from gitlab_cicd_python_wrapper.variables import Variable
+from gitlab_cicd_python_wrapper.variables import Variable, VariableValue
 
 GLOBAL_KEYWORDS = frozenset(
     {
@@ -19,19 +22,39 @@ GLOBAL_KEYWORDS = frozenset(
         "workflow",
         "include",
         "spec",
+        # Deprecated global equivalents of `default:` keywords, still accepted by GitLab.
+        "image",
+        "services",
+        "before_script",
+        "after_script",
+        "cache",
     }
 )
+
+
+def _dump(value: Any) -> Any:
+    if isinstance(value, BaseModel):
+        return value.model_dump(mode="json", exclude_none=True, by_alias=True)
+    if isinstance(value, list):
+        return [_dump(v) for v in value]
+    return value
 
 
 class Pipeline(BaseModel):
     model_config = ConfigDict(populate_by_name=True, extra="forbid")
 
     stages: list[str] | None = None
-    variables: dict[str, str | Variable] | None = None
+    variables: dict[str, VariableValue] | None = None
     default: Default | None = None
     workflow: Workflow | None = None
-    include: list[dict[str, Any] | str] | None = None
+    include: list[dict[str, Any] | str] | dict[str, Any] | str | None = None
     spec: ComponentSpec | None = None
+    # Deprecated: use `default:` instead.
+    image: str | Image | None = None
+    services: list[str | Service] | None = None
+    before_script: Script | None = None
+    after_script: Script | None = None
+    cache: Cache | list[Cache] | None = None
     jobs: dict[str, Job] = {}
 
     _raw: Any = None
@@ -70,7 +93,7 @@ class Pipeline(BaseModel):
             raw["stages"] = self.stages
         if self.variables:
             raw["variables"] = {
-                k: v if isinstance(v, str) else v.model_dump(mode="json", exclude_none=True)
+                k: v.model_dump(mode="json", exclude_none=True) if isinstance(v, Variable) else v
                 for k, v in self.variables.items()
             }
         if self.default:
@@ -79,8 +102,12 @@ class Pipeline(BaseModel):
             raw["workflow"] = self.workflow.model_dump(mode="json", exclude_none=True, by_alias=True)
         if self.include:
             raw["include"] = self.include
+        for key in ("image", "services", "before_script", "after_script", "cache"):
+            value = getattr(self, key)
+            if value is not None:
+                raw[key] = _dump(value)
         for name, job in self.jobs.items():
-            raw[name] = job.model_dump(mode="json", exclude_none=True, by_alias=True)
+            raw[name] = _dump(job)
         result = dump_yaml(raw)
         if target is not None:
             Path(target).write_text(result)

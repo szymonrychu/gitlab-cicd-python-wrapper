@@ -10,8 +10,9 @@ from gitlab_cicd_python_wrapper.common import InputType
 class InputRule(BaseModel):
     model_config = ConfigDict(populate_by_name=True, extra="forbid")
 
-    if_: str = Field(alias="if")
-    options: list[str | int | float | bool] | None = None
+    # A rule without `if` acts as the fallback.
+    if_: str | None = Field(None, alias="if")
+    options: list[str | int | float | bool] | None = Field(None, max_length=50)
     default: str | int | float | bool | list | None = None
 
 
@@ -20,7 +21,7 @@ class ComponentInput(BaseModel):
 
     type: InputType = InputType.string
     default: str | int | float | bool | list | None = None
-    description: str | None = None
+    description: str | None = Field(None, max_length=1024)
     options: list[str | int | float | bool] | None = None
     regex: str | None = None
     rules: list[InputRule] | None = None
@@ -30,6 +31,12 @@ class ComponentInput(BaseModel):
         if self.options is not None and self.default is not None:
             if self.default not in self.options:
                 raise ValueError(f"default {self.default!r} must be one of options {self.options!r}")
+        return self
+
+    @model_validator(mode="after")
+    def validate_rules_exclusive(self) -> ComponentInput:
+        if self.rules is not None and (self.options is not None or self.default is not None):
+            raise ValueError("spec:inputs:rules cannot be combined with 'options' or 'default'")
         return self
 
     @model_validator(mode="after")

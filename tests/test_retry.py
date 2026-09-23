@@ -12,16 +12,16 @@ class TestRetry:
         assert r.when is None
 
     def test_with_when(self):
-        r = Retry(max=3, when=[RetryWhen.script_failure, RetryWhen.api_failure])
+        r = Retry(max=2, when=[RetryWhen.script_failure, RetryWhen.api_failure])
         assert len(r.when) == 2
 
     def test_max_bounds(self):
         Retry(max=0)
-        Retry(max=5)
+        Retry(max=2)
         with pytest.raises(ValidationError):
             Retry(max=-1)
         with pytest.raises(ValidationError):
-            Retry(max=6)
+            Retry(max=3)
 
     def test_extra_forbidden(self):
         with pytest.raises(ValidationError):

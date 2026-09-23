@@ -55,7 +55,7 @@ class TestWorkflowRule:
             **{"if": "$CI"},
             auto_cancel={"on_new_commit": "interruptible"},
         )
-        assert wr.auto_cancel["on_new_commit"] == "interruptible"
+        assert wr.auto_cancel.on_new_commit == "interruptible"
 
     def test_extra_forbid(self):
         with pytest.raises(ValidationError):

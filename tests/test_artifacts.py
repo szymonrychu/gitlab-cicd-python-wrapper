@@ -22,7 +22,8 @@ class TestArtifactReports:
 
     def test_coverage_report(self):
         r = ArtifactReports(coverage_report={"coverage_format": "cobertura", "path": "cov.xml"})
-        assert r.coverage_report["path"] == "cov.xml"
+        assert r.coverage_report.path == "cov.xml"
+        assert r.coverage_report.coverage_format == "cobertura"
 
     def test_extra_allowed(self):
         r = ArtifactReports(custom_report="foo.json")
