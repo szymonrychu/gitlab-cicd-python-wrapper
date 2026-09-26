@@ -21,15 +21,16 @@ jobs:
         uses: snok/install-poetry@a783c322200f0519c7926aa6faa857c4e23e9263 # v1
 
       - name: Install dependencies
-        run: poetry install --no-interaction --no-ansi
+        run: poetry install --with drift --no-interaction --no-ansi
 
       - name: Run drift analysis
+        id: analyze
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-        run: python scripts/analyze_drift.py
+        run: poetry run python scripts/analyze_drift.py
 
       - name: Create issue if drift detected
-        if: steps.analyze.outcome == 'success' && hashFiles('drift-report.md') != ''
+        if: steps.analyze.outputs.drift_detected == 'true'
         uses: peter-evans/create-issue-from-file@fca9117c27cdc29c6c4db3b86c48e4115a786710 # v6
         with:
           title: "Pipeline Drift Detected"
