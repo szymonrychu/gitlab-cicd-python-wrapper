@@ -12,7 +12,7 @@ class TestTriggerForward:
         assert tf.yaml_variables is None
 
     def test_full(self):
-        tf = TriggerForward(yaml_variables=True, pipeline_variables=False, dotenv_variables=True)
+        tf = TriggerForward(yaml_variables=True, pipeline_variables=False)
         assert tf.yaml_variables is True
         assert tf.pipeline_variables is False
 

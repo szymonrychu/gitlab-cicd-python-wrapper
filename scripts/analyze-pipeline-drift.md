@@ -13,19 +13,10 @@ For each piece of drift found, provide:
 - The documentation URL where it is described
 - Severity: "high" (commonly used), "medium" (moderately used), or "low" (rarely used)
 
-Respond in JSON format:
-{
-  "drift_found": true/false,
-  "items": [
-    {
-      "keyword": "...",
-      "description": "...",
-      "doc_url": "...",
-      "severity": "high|medium|low"
-    }
-  ],
-  "summary": "A brief overall summary of the drift analysis"
-}
+Only report keywords, options, or allowed values that are genuinely missing or incorrectly modelled. The
+official CI JSON schema (`ci.json`) is included alongside the docs; treat it as the source of truth for
+allowed keys and enum values. Set `drift_found` to false and return an empty `items` list when the
+models are in sync.
 
 ## Source Code
 

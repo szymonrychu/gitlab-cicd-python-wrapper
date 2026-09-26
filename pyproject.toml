@@ -27,6 +27,13 @@ poethepoet = "^0.48.0"
 coverage-badge = "^1.1"
 autoflake = "^2.3"
 
+
+[tool.poetry.group.drift]
+optional = true
+
+[tool.poetry.group.drift.dependencies]
+anthropic = "^1.8.0"
+
 [tool.poetry.scripts]
 gitlab-cicd-validate = "gitlab_cicd_python_wrapper.cli:main"
 

@@ -85,7 +85,7 @@ class TestRetryWhen:
         assert RetryWhen.data_integrity_failure == "data_integrity_failure"
 
     def test_member_count(self):
-        assert len(RetryWhen) == 14
+        assert len(RetryWhen) == 23
 
 
 class TestDeploymentTier:
@@ -105,10 +105,11 @@ class TestEnvironmentAction:
         assert EnvironmentAction.start == "start"
         assert EnvironmentAction.stop == "stop"
         assert EnvironmentAction.prepare == "prepare"
-        assert EnvironmentAction.rollback == "rollback"
+        assert EnvironmentAction.verify == "verify"
+        assert EnvironmentAction.access == "access"
 
     def test_member_count(self):
-        assert len(EnvironmentAction) == 4
+        assert len(EnvironmentAction) == 5
 
 
 class TestAutoCancelOnNewCommit:

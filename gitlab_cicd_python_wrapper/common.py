@@ -12,6 +12,11 @@ class WhenCondition(str, Enum):
     delayed = "delayed"
 
 
+class WorkflowWhen(str, Enum):
+    always = "always"
+    never = "never"
+
+
 class CachePolicy(str, Enum):
     pull = "pull"
     push = "push"
@@ -43,11 +48,20 @@ class RetryWhen(str, Enum):
     script_failure = "script_failure"
     api_failure = "api_failure"
     stuck_or_timeout_failure = "stuck_or_timeout_failure"
+    stuck_pending_with_matching_runners = "stuck_pending_with_matching_runners"
+    stuck_pending_no_matching_runners = "stuck_pending_no_matching_runners"
+    no_updates_running = "no_updates_running"
+    no_updates_canceling = "no_updates_canceling"
     runner_system_failure = "runner_system_failure"
+    runner_configuration_error = "runner_configuration_error"
+    runner_external_dependency_failure = "runner_external_dependency_failure"
+    runner_interrupted = "runner_interrupted"
     missing_dependency_failure = "missing_dependency_failure"
     runner_unsupported = "runner_unsupported"
     stale_schedule = "stale_schedule"
     job_execution_timeout = "job_execution_timeout"
+    server_timeout_running = "server_timeout_running"
+    server_timeout_canceling = "server_timeout_canceling"
     archived_failure = "archived_failure"
     unmet_prerequisites = "unmet_prerequisites"
     scheduler_failure = "scheduler_failure"
@@ -66,7 +80,8 @@ class EnvironmentAction(str, Enum):
     start = "start"
     stop = "stop"
     prepare = "prepare"
-    rollback = "rollback"
+    verify = "verify"
+    access = "access"
 
 
 class AutoCancelOnNewCommit(str, Enum):
@@ -85,3 +100,43 @@ class InputType(str, Enum):
     number = "number"
     boolean = "boolean"
     array = "array"
+
+
+class PullPolicy(str, Enum):
+    always = "always"
+    never = "never"
+    if_not_present = "if-not-present"
+
+
+class TriggerStrategy(str, Enum):
+    depend = "depend"
+    mirror = "mirror"
+
+
+class CoverageFormat(str, Enum):
+    cobertura = "cobertura"
+    jacoco = "jacoco"
+
+
+class ReleaseLinkType(str, Enum):
+    runbook = "runbook"
+    package = "package"
+    image = "image"
+    other = "other"
+
+
+class IdentityProvider(str, Enum):
+    google_cloud = "google_cloud"
+
+
+class InheritDefaultKeyword(str, Enum):
+    after_script = "after_script"
+    artifacts = "artifacts"
+    before_script = "before_script"
+    cache = "cache"
+    image = "image"
+    interruptible = "interruptible"
+    retry = "retry"
+    services = "services"
+    tags = "tags"
+    timeout = "timeout"

@@ -2,27 +2,48 @@ from __future__ import annotations
 
 from pydantic import BaseModel, ConfigDict
 
-from gitlab_cicd_python_wrapper.common import ArtifactAccess, ArtifactWhen
+from gitlab_cicd_python_wrapper.common import (
+    ArtifactAccess,
+    ArtifactWhen,
+    CoverageFormat,
+)
+
+
+class CoverageReport(BaseModel):
+    model_config = ConfigDict(populate_by_name=True, extra="forbid")
+
+    coverage_format: CoverageFormat
+    path: str
 
 
 class ArtifactReports(BaseModel):
     model_config = ConfigDict(populate_by_name=True, extra="allow")
 
-    junit: list[str] | str | None = None
-    coverage_report: dict[str, str] | None = None
+    accessibility: list[str] | str | None = None
+    annotations: list[str] | str | None = None
+    api_fuzzing: list[str] | str | None = None
+    browser_performance: list[str] | str | None = None
     codequality: list[str] | str | None = None
-    sast: list[str] | str | None = None
-    dependency_scanning: list[str] | str | None = None
     container_scanning: list[str] | str | None = None
-    dast: list[str] | str | None = None
-    license_scanning: list[str] | str | None = None
-    performance: list[str] | str | None = None
-    dotenv: list[str] | str | None = None
-    terraform: list[str] | str | None = None
-    metrics: list[str] | str | None = None
-    requirements: list[str] | str | None = None
-    secret_detection: list[str] | str | None = None
+    coverage_fuzzing: list[str] | str | None = None
     cyclonedx: list[str] | str | None = None
+    dast: list[str] | str | None = None
+    dependency_scanning: list[str] | str | None = None
+    dotenv: list[str] | str | None = None
+    junit: list[str] | str | None = None
+    license_management: list[str] | str | None = None
+    license_scanning: list[str] | str | None = None
+    load_performance: list[str] | str | None = None
+    lsif: list[str] | str | None = None
+    metrics: list[str] | str | None = None
+    performance: list[str] | str | None = None
+    repository_xray: list[str] | str | None = None
+    requirements: list[str] | str | None = None
+    sarif: list[str] | str | None = None
+    sast: list[str] | str | None = None
+    secret_detection: list[str] | str | None = None
+    terraform: list[str] | str | None = None
+    coverage_report: CoverageReport | None = None
 
 
 class Artifacts(BaseModel):
